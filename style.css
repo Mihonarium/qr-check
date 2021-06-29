@@ -1,4 +1,3 @@
-	<style>
 /*! CSS Used from: https://infima.dev/assets/css/styles.d24def90.css */
 .button{-webkit-appearance:none;-moz-appearance:none;cursor:pointer;}
 .button{transition-timing-function:var(--ifm-transition-timing-default);}
@@ -41,4 +40,3 @@
 :root{--ifm-color-primary:#f21b4f;--ifm-color-primary-dark:#e50d41;--ifm-color-primary-darker:#d80c3e;--ifm-color-primary-darkest:#b20a33;--ifm-color-primary-light:#f33463;--ifm-color-primary-lighter:#f4416c;--ifm-color-primary-lightest:#f6678a;--ifm-code-font-size:95%;--white-low-opacity:hsla(0,0%,100%,0.5);--black-low-opacity:rgba(0,0,0,0.5);--ifm-container-width:1050px;}
 :root{--ifm-code-background:var(--ifm-color-emphasis-200);--ifm-code-border-radius:var(--ifm-global-radius);--ifm-code-color:var(--ifm-color-emphasis-900);--ifm-code-font-size:90%;--ifm-code-padding-horizontal:0.4rem;--ifm-code-padding-vertical:0.2rem;--ifm-pre-background:var(--ifm-color-emphasis-100);--ifm-pre-border-radius:var(--ifm-code-border-radius);--ifm-pre-color:inherit;--ifm-pre-line-height:1.45;--ifm-pre-padding:1rem;}
 :root{--ifm-heading-color:inherit;--ifm-heading-margin-top:0;--ifm-heading-margin-bottom:var(--ifm-spacing-vertical);--ifm-heading-font-family:inherit;--ifm-heading-font-weight:var(--ifm-font-weight-bold);--ifm-heading-line-height:1.25;--ifm-h1-font-size:2rem;--ifm-h2-font-size:1.5rem;--ifm-h3-font-size:1.25rem;--ifm-h4-font-size:1rem;--ifm-h5-font-size:0.875rem;--ifm-h6-font-size:0.85rem;}
-</style>
