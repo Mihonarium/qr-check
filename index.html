@@ -7,6 +7,10 @@
     <link rel="stylesheet" type="text/css" href="style.css" />
   </head>
   <body>
+  <div id="instructions" style="width: 90%;margin: auto; position: relative;font-size:40px;"><h2>Как использовать:</h2>
+    <ul><li>Разрешите доступ к камере.</li><li>Наведите на QR-код.</li><li>Нажмите на кнопку, чтобы открыть сертификат.</li><li>Сверьте данные с паспортом посетителя.</li></ul>
+	<button class="button button--outline button--success" onclick="start()" style="transform: scale(5);transform-origin: 0% 0% 0px;">Начать</button>
+	</div>
     <div style="width: 100%; text-align: center; margin: auto;" id="reader"></div>
 	<button class="button button--success" style="position:absolute;left:10%;right:10%;top:30%;bottom:30%;margin:auto;font-size:50px;display:none;" id="button">Открыть сертификат</button>
     <script type="text/javascript">
@@ -56,6 +60,15 @@
 		$('body').css('background', color);
 		setTimeout(resetBackground, 1000);
 	}
+	function openUrl(href) {
+		let a = document.createElement("a");
+		document.body.appendChild(a);
+		a.style = "display: none";
+		a.href = href;
+		a.target = "_blank";
+		a.click();
+		document.body.removeChild(a);
+	}
 	var href = "";
 	function onGoodQR(url) {
 		showSomeColor('#fff');
@@ -92,11 +105,14 @@
 		}
 		onGoodQR(url);
 	}
-	const html5QrCode = new Html5Qrcode("reader");
-	html5QrCode.start({ facingMode: "environment" }, {
-			fps: 10,
-			qrbox: Math.min(getWidth(), getHeight()) * 0.9
-		  }, onScanSuccess);
+	function start() {
+		$("#instructions").hide();
+		const html5QrCode = new Html5Qrcode("reader");
+		html5QrCode.start({ facingMode: "environment" }, {
+				fps: 10,
+				qrbox: Math.min(getWidth(), getHeight()) * 0.9
+			  }, onScanSuccess);
+	}
     </script>
   </body>
 </html>
