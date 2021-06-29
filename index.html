@@ -3,11 +3,12 @@
   <head>
     <title>Проверка подлинности QR-кодов</title>
     <script src="https://github.com/mebjas/html5-qrcode/releases/download/V2.0.11/html5-qrcode.min.js"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css" />
   </head>
   <body>
     <div style="width: 100%; text-align: center; margin: auto;" id="reader"></div>
-    <script type="text/javascript">
+   <script type="text/javascript">
 	const allowedHosts = ["gosuslugi.ru", "mos.ru", "emias.info"];
 	function getWidth() {
 	  return Math.max(
@@ -54,10 +55,19 @@
 		$('body').css('background', color);
 		setTimeout(resetBackground, 1000);
 	}
+	var href = "";
 	function onGoodQR(url) {
-		showSomeColor('#0f0');
+		showSomeColor('#fff');
 		if(url.protocol == "http:") url.protocol = "https://";
-		window.open(url.href, "targetWindow");
+		$("#reader").hide();
+		$("#button").attr('onclick', 'openCertificate()');
+		$("#button").show();
+		href = url.href;
+	}
+	function openCertificate() {
+		window.open(href, "_blank");
+		$("#button").hide();
+		$("#reader").show();
 	}
 	function onBadQR(url, isStr = false) {
 		showSomeColor('#f00');
@@ -81,7 +91,6 @@
 		}
 		onGoodQR(url);
 	}
-	
 	const html5QrCode = new Html5Qrcode("reader");
 	html5QrCode.start({ facingMode: "environment" }, {
 			fps: 10,
