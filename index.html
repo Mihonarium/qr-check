@@ -14,39 +14,13 @@
     <div style="width: 100%; text-align: center; margin: auto;" id="reader"></div>
 	<button class="button button--success" style="position:absolute;left:10%;right:10%;top:30%;bottom:30%;margin:auto;font-size:50px;display:none;" id="button">Открыть сертификат</button>
     <script type="text/javascript">
-	const allowedHosts = ["gosuslugi.ru", "mos.ru", "emias.info"];
-	function getWidth() {
-	  return Math.max(
-		document.body.scrollWidth,
-		document.documentElement.scrollWidth,
-		document.body.offsetWidth,
-		document.documentElement.offsetWidth,
-		document.documentElement.clientWidth
-	  );
-	}
-
-	function getHeight() {
-	  return Math.max(
-		document.body.scrollHeight,
-		document.documentElement.scrollHeight,
-		document.body.offsetHeight,
-		document.documentElement.offsetHeight,
-		document.documentElement.clientHeight
-	  );
-	}
-	function trimPrefix(str, prefix) {
-		if (str.startsWith(prefix)) {
-			return str.slice(prefix.length)
-		} else {
-			return str
-		}
-	}
+	const allowedHosts = ["www.gosuslugi.ru", "immune.mos.ru"];
 	function checkHost(host) {
 		for (allowedHost of allowedHosts) {
 		  if(host == allowedHost) return true;
-		  if (host.endsWith("."+allowedHost)) {
+		  /*if (host.endsWith("."+allowedHost)) {
 			return true;
-		  }
+		  }*/
 		}
 		return false;
 	}
@@ -112,6 +86,25 @@
 				fps: 10,
 				qrbox: Math.min(getWidth(), getHeight()) * 0.9
 			  }, onScanSuccess);
+	}
+	function getWidth() {
+	  return Math.max(
+		document.body.scrollWidth,
+		document.documentElement.scrollWidth,
+		document.body.offsetWidth,
+		document.documentElement.offsetWidth,
+		document.documentElement.clientWidth
+	  );
+	}
+
+	function getHeight() {
+	  return Math.max(
+		document.body.scrollHeight,
+		document.documentElement.scrollHeight,
+		document.body.offsetHeight,
+		document.documentElement.offsetHeight,
+		document.documentElement.clientHeight
+	  );
 	}
     </script>
   </body>
