@@ -72,7 +72,7 @@
 	var href = "";
 	function onGoodQR(url) {
 		showSomeColor('#fff');
-		if(url.protocol == "http:") url.protocol = "https://";
+		if(url.protocol != "https:") url.protocol = "https:";
 		$("#reader").hide();
 		$("#button").attr('onclick', 'openCertificate()');
 		$("#button").show();
