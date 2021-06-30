@@ -1,61 +1,93 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Проверка подлинности QR-кодов</title>
-    <script src="https://github.com/mebjas/html5-qrcode/releases/download/V2.0.11/html5-qrcode.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="style.css" />
+	<title>Проверка подлинности QR-кодов</title>
+	<script src="https://github.com/mebjas/html5-qrcode/releases/download/V2.0.11/html5-qrcode.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="style.css" />
   </head>
   <body>
   <div id="instructions" style="width: 90%;margin: auto; position: relative;font-size:40px;"><h2>Как использовать:</h2>
-    <ul><li>Разрешите доступ к камере.</li><li>Наведите на QR-код.</li><li>Нажмите на кнопку, чтобы открыть сертификат.</li><li>Сверьте данные с паспортом посетителя.</li></ul>
+	<ul><li>Разрешите доступ к камере.</li><li>Наведите на QR-код.</li><li>Нажмите на кнопку, чтобы открыть сертификат.</li><li>Сверьте данные с паспортом посетителя.</li></ul>
 	<button class="button button--outline button--success" onclick="start()" style="transform: scale(5);transform-origin: 0% 0% 0px;">Начать</button>
 	</div>
-    <div style="width: 100%; text-align: center; margin: auto;" id="reader"></div>
+	<div style="width: 100%; text-align: center; margin: auto;" id="reader"></div>
 	<button class="button button--success" style="position:absolute;left:10%;right:10%;top:30%;bottom:30%;margin:auto;font-size:50px;display:none;" id="button">Открыть сертификат</button>
-    <script type="text/javascript">
-	const allowedHosts = ["www.gosuslugi.ru", "immune.mos.ru"];
+	<script type="text/javascript">
+	const allowedHosts = ["gosuslugi.ru", "mos.ru", "emias.info"];
+    
+    const body = document.body;
+    const button = document.getElementById("button");
+	const reader = document.getElementById("reader");
+
+	function getWidth() {
+	  return Math.max(
+		body.scrollWidth,
+		document.documentElement.scrollWidth,
+		body.offsetWidth,
+		document.documentElement.offsetWidth,
+		document.documentElement.clientWidth
+	  );
+	}
+
+	function getHeight() {
+	  return Math.max(
+		body.scrollHeight,
+		document.documentElement.scrollHeight,
+		body.offsetHeight,
+		document.documentElement.offsetHeight,
+		document.documentElement.clientHeight
+	  );
+	}
+	function trimPrefix(str, prefix) {
+		if (str.startsWith(prefix)) {
+			return str.slice(prefix.length)
+		} else {
+			return str
+		}
+	}
 	function checkHost(host) {
 		for (allowedHost of allowedHosts) {
 		  if(host == allowedHost) return true;
-		  /*if (host.endsWith("."+allowedHost)) {
+		  if (host.endsWith("."+allowedHost)) {
 			return true;
-		  }*/
+		  }
 		}
 		return false;
 	}
-	backgroundIntact = true;
+	let backgroundIntact = true;
 	function resetBackground() {
 		backgroundIntact = true;
-		$('body').css('background', 'transparent');
+		body.style.background = "transparent";
 	}
 	function showSomeColor(color) {
 		backgroundIntact = false;
-		$('body').css('background', color);
+		body.style.background = color;
 		setTimeout(resetBackground, 1000);
 	}
 	function openUrl(href) {
 		let a = document.createElement("a");
-		document.body.appendChild(a);
+		body.appendChild(a);
 		a.style = "display: none";
 		a.href = href;
 		a.target = "_blank";
 		a.click();
-		document.body.removeChild(a);
+		body.removeChild(a);
 	}
-	var href = "";
+	let href = "";
+	function toggleReader(visible) {
+		reader.style.display = visible ? "" : "none";
+		button.style.display = visible ? "none" : "";
+	}
 	function onGoodQR(url) {
 		showSomeColor('#fff');
 		if(url.protocol != "https:") url.protocol = "https:";
-		$("#reader").hide();
-		$("#button").attr('onclick', 'openCertificate()');
-		$("#button").show();
+		toggleReader(false);
+		button.setAttribute("onclick", "openCertificate()");
 		href = url.href;
 	}
 	function openCertificate() {
 		window.open(href, "_blank");
-		$("#button").hide();
-		$("#reader").show();
+		toggleReader(true);
 	}
 	function onBadQR(url, isStr = false) {
 		showSomeColor('#f00');
@@ -80,32 +112,15 @@
 		onGoodQR(url);
 	}
 	function start() {
-		$("#instructions").hide();
+		document.getElementById("instructions")
+			.style.display = "none";
+
 		const html5QrCode = new Html5Qrcode("reader");
 		html5QrCode.start({ facingMode: "environment" }, {
 				fps: 10,
 				qrbox: Math.min(getWidth(), getHeight()) * 0.9
 			  }, onScanSuccess);
 	}
-	function getWidth() {
-	  return Math.max(
-		document.body.scrollWidth,
-		document.documentElement.scrollWidth,
-		document.body.offsetWidth,
-		document.documentElement.offsetWidth,
-		document.documentElement.clientWidth
-	  );
-	}
-
-	function getHeight() {
-	  return Math.max(
-		document.body.scrollHeight,
-		document.documentElement.scrollHeight,
-		document.body.offsetHeight,
-		document.documentElement.offsetHeight,
-		document.documentElement.clientHeight
-	  );
-	}
-    </script>
+	</script>
   </body>
 </html>
