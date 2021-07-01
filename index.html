@@ -11,7 +11,7 @@
 	<button class="button button--success" onclick="start()" style="transform: scale(5);transform-origin: 0% 0% 0px;">Начать</button>
 	</div>
     <div style="width: 100%;"><div style="width: 90%; text-align: center; margin: auto;transform-origin: top center;" id="reader"></div></div>
-	<div style="position: absolute; top: 50%; left: 5%; right: 5%;min-height:20%;" id="cert">
+	<div style="position: absolute; top: 50%; left: 5%; right: 5%;min-height:20%;display:none;" id="cert">
 		<div id="cert-info" style="font-size:3em;"></div>
 		<div style="width: 33%; transform: scale(3);transform-origin: top left;margin-top: 15px;">
 			<button class="button button--outline button--success" onclick="openCertificate()" style="display:none;" id="open-cert-button">Открыть сертификат</button>
@@ -135,6 +135,7 @@
 				fps: 10,
 				qrbox: Math.min(getWidth(), getHeight()) * 0.8
 			  }, onScanSuccess);
+		$('#cert').show();
 	}
 	function escapeHTML(unsafe) {
 	  return unsafe.replace(
