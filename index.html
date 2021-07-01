@@ -6,24 +6,20 @@
     <link rel="stylesheet" type="text/css" href="style.css" />
   </head>
   <body>
-  <div id="instructions" style="width: 90%;margin: auto; position: relative;font-size:40px;"><h2>Как использовать:</h2>
+  <div id="instructions" style="width: 90%;margin: auto; position: relative;font-size:3em;"><h2>Как использовать:</h2>
     <ul><li>Разрешите доступ к камере.</li><li>Наведите на QR-код.</li><li>Нажмите на кнопку, чтобы открыть сертификат.</li><li>Сверьте данные с паспортом посетителя.</li></ul>
-	<button class="button button--outline button--success" onclick="start()" style="transform: scale(5);transform-origin: 0% 0% 0px;">Начать</button>
+	<button class="button button--success" onclick="start()" style="transform: scale(5);transform-origin: 0% 0% 0px;">Начать</button>
 	</div>
-    <div style="width: 100%; text-align: center; margin: auto;" id="reader"></div>
-	<button class="button button--success" style="position:absolute;left:10%;right:10%;top:30%;bottom:30%;margin:auto;font-size:50px;display:none;" id="button">Открыть сертификат</button>
+    <div style="width: 100%;"><div style="width: 90%; text-align: center; margin: auto;transform-origin: top center;" id="reader"></div></div>
+	<div style="position: absolute; top: 50%; left: 5%; right: 5%;min-height:20%;" id="cert">
+		<div id="cert-info" style="font-size:3em;"></div>
+		<div style="width: 33%; transform: scale(3);transform-origin: top left;margin-top: 15px;">
+			<button class="button button--outline button--success" onclick="openCertificate()" style="display:none;" id="open-cert-button">Открыть сертификат</button>
+			<button class="button button--success" onclick="continueScanning(true)" style="display:none;" id="continue-button">Продолжить</button>
+		</div>
+	</div>
     <script type="text/javascript">
-	const allowedHosts = ["www.gosuslugi.ru", "immune.mos.ru"];
-
-    const body = document.body;
-    const button = document.getElementById("button");
-	const reader = document.getElementById("reader");
-
-    function toggleReader(visible) {
-		reader.style.display = visible ? "" : "none";
-		button.style.display = visible ? "none" : "";
-	}
-
+	const allowedHosts = ["www.gosuslugi.ru", "gosuslugi.ru", "immune.mos.ru"];
 	function checkHost(host) {
 		for (allowedHost of allowedHosts) {
 		  if(host == allowedHost) return true;
@@ -33,47 +29,93 @@
 		}
 		return false;
 	}
-	let backgroundIntact = true;
 	function resetBackground() {
-		backgroundIntact = true;
-		body.style.background = "transparent";
+		//$('body').css('background', 'transparent');
+		$('#cert').css('background', 'transparent');
 	}
 	function showSomeColor(color) {
-		backgroundIntact = false;
-        body.style.background = color;
-		setTimeout(resetBackground, 1000);
-	}
-	function openUrl(href) {
-		let a = document.createElement("a");
-		body.appendChild(a);
-		a.style = "display: none";
-		a.href = href;
-		a.target = "_blank";
-		a.click();
-		document.body.removeChild(a);
+		//$('body').css('background', color);
+		$('#cert').css('background', color);
+		setTimeout(resetBackground, 700);
 	}
 	var href = "";
+	function showCertificate(name, birthday) {
+		// $('#reader').css('width', '50%');
+		$("#reader").css("transform", "scale(0.7)") 
+		$("#open-cert-button").show();
+		$("#continue-button").show();
+		$("#cert-info").html("<p>Сертификат валидирован! Сверьте с паспортными данными:</p><p style='font-size:1.2em;'>Имя: <b>"+escapeHTML(name)+ "</b><br/>Дата рождения: <b>" +escapeHTML(birthday)+"</b></p>");
+		$("#cert-info").show();
+		showSomeColor('#0f0');
+	}
+	function continueScanning(withButton) {
+		if(withButton) lastQR = "";
+		$("#cert-info").hide();
+		$("#open-cert-button").hide();
+		$("#continue-button").hide();
+		$("#continue-button").focusout();
+		$("#reader").css("transform", "") 
+	}
+	function validationFailWithButtons(text, showOpenButton = true) {
+		//alert(text);
+		$("#reader").css("transform", "scale(0.7)") 
+		$("#cert-info").text(text);
+		$("#cert-info").show();
+		if(showOpenButton) $("#open-cert-button").show();
+		$("#continue-button").show();
+		showSomeColor('#f00');
+	}
 	function onGoodQR(url) {
-		showSomeColor('#fff');
-		if(url.protocol != "https:") url.protocol = "https:";
-        toggleReader(false);
-		button.setAttribute("onclick", "openCertificate()");
+		//showSomeColor('#fff');
+		if(url.protocol == "http:") url.protocol = "https://";
 		href = url.href;
+		if(url.host == "www.gosuslugi.ru" || url.host == "gosuslugi.ru" ) {
+			s = url.pathname.split("/");
+			id = s[s.length-1];
+			$.getJSON("https://www.gosuslugi.ru/api/vaccine/v1/cert/verify/"+encodeURI(id)).then(function(data) {
+				if(data === undefined) {
+					validationFailWithButtons("QR-код ведёт на настоящий сайт, но Госуслуги не выдают по нему сертификат");
+					return;
+				}
+				if(!data.fio) data.fio = data.enFio;
+				showCertificate(data.fio, data.birthdate);
+			})
+		}
+		if(url.host == "immune.mos.ru") {
+			id = url.search.split("=")[1];
+			$.ajax({url: "https://immune.mos.ru/api/search_by_number_form", type: 'POST', data: JSON.stringify({"number": id}), contentType: 'application/json'}).then(function(data) {
+				if(data.result === false) {
+					validationFailWithButtons("QR-код ведёт на настоящий сайт, но mos.ru не выдаёт по нему сертификат");
+					return;
+				}
+				data = data.result.certificate;
+				if(new Date() > new Date(data.end)) {
+					validationFailWithButtons("Сертификат настоящий, но у него закончился срок действия");
+					return;
+				}
+				data.birthDay = data.birthDay.split("-").reverse().join(".");
+				showCertificate(data.initials, data.birthDay);
+			});
+		}
 	}
 	function openCertificate() {
 		window.open(href, "_blank");
-		toggleReader(true);
+		//$("#open-cert-button").hide();
+		//$("#reader").show();
 	}
 	function onBadQR(url, isStr = false) {
 		showSomeColor('#f00');
 		if(isStr) {
-			alert("QR-код поддельный: содержит текст, а не ссылку");
+			validationFailWithButtons("QR-код поддельный: содержит текст, а не ссылку", false);
 			return;
 		}
-		alert("QR-код поддельный: ведёт на "+url.host);
+		validationFailWithButtons("QR-код поддельный: ведёт на "+url.host, false);
 	}
+	let lastQR = "";
 	function onScanSuccess(decodedText, decodedResult) {
-		if(!backgroundIntact) return;
+		if(lastQR === decodedText) return;
+		lastQR = decodedText;
+		continueScanning(false);
 		try {
 			url = new URL(decodedText);
 		} catch (_) {
@@ -87,13 +129,18 @@
 		onGoodQR(url);
 	}
 	function start() {
-		document.getElementById("instructions")
-			.style.display = "none";
+		$("#instructions").hide();
 		const html5QrCode = new Html5Qrcode("reader");
 		html5QrCode.start({ facingMode: "environment" }, {
 				fps: 10,
-				qrbox: Math.min(getWidth(), getHeight()) * 0.9
+				qrbox: Math.min(getWidth(), getHeight()) * 0.8
 			  }, onScanSuccess);
+	}
+	function escapeHTML(unsafe) {
+	  return unsafe.replace(
+		/[\u0000-\u002F\u003A-\u0040\u005B-\u0060\u007B-\u00FF]/g,
+		c => '&#' + ('000' + c.charCodeAt(0)).substr(-4, 4) + ';'
+	  )
 	}
 	function getWidth() {
 	  return Math.max(
